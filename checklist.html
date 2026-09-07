@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Deployment Checklist</title>
+<title>NIMBUS · Deployment Checklist</title>
 <script>
 /*! ExcelJS 21-08-2021 */
 
@@ -499,7 +499,7 @@
 <header>
   <div class="logo-mark">NB</div>
   <div>
-    <h1>Deployment Checklist</h1>
+    <h1>NIMBUS Deployment Checklist</h1>
     <p>Select deployment modules → Preview → Export to Excel</p>
   </div>
   <div class="spacer"></div>
@@ -564,6 +564,7 @@
 /* ───────── DATA ───────── */
 const GENERAL = {
   id:'general', name:'General',
+  sub:'(REACT/HAPPY/JAVA BATCH → APIC → JAVA CONTROLLER → EJB/REST API → MQ → COBOL)',
   rows:[
     {sn:'1',phase:'Analysis / Design',item:'Create Impact Analysis',pre:'CRMS ticket is created',doc:'CR Form (Applicable for CR only)',loc:'LN → CRMS → Impact Analysis',rem:'Set date with buffer for implementation date.'},
     {sn:'2',phase:'Analysis / Design',item:'Create Working File',pre:'SRS/SDS is created',doc:'SRS/SDS',loc:'LN → Program Documents',rem:''},
@@ -578,7 +579,7 @@ const MODULES = [
     rows:[
       {sn:'6', phase:'SIT',             item:'Jest Test Coverage',       pre:'Test Coverage ≥80%',                              doc:'Build Summary Report', loc:'Confluence',       rem:'Quality Gate passed (Sonarqube / SAST / DAST)'},
       {sn:'7', phase:'Deploy',          item:'Create Release Notes',     pre:'UAT Completion',                                  doc:'UAT Signoff Email',    loc:'Confluence',       rem:''},
-      {sn:'8', phase:'Deploy',          item:'Create Release Notes',     pre:'UAT Completion',                                  doc:'UAT Signoff Email',    loc:'Confluence',       rem:''},
+      {sn:'8', phase:'Deploy',          item:'Request for Pipeline Approval', pre:'Create Release Notes',                       doc:'Email confirmation',   loc:'Confluence',       rem:'Seek TL Approval in GitLab'},
       {sn:'9', phase:'Deploy',          item:'Deploy REACT Codes',       pre:"HDB Team Lead's GitLab pipeline Approval",        doc:'Email confirmation',   loc:'Confluence',       rem:''},
       {sn:'10',phase:'Post Deployment', item:'Production Verification',  pre:'Deployment completed',                            doc:'Email notification to stakeholders', loc:'JIRA / Confluence', rem:'Verify logs (StackOps / DataPower Gateway / API Connect) · Verify UI (if access granted) · Display only BN31, BN32, BN41, BE04'},
     ]
@@ -587,8 +588,8 @@ const MODULES = [
     rows:[
       {sn:'11',phase:'SIT',             item:'JUnit Test Coverage',              pre:'Test Coverage ≥80%',                              doc:'Build Summary Report', loc:'Confluence',       rem:'Quality Gate passed (Sonarqube / SAST / DAST)'},
       {sn:'12',phase:'Deploy',          item:'Create Release Notes',             pre:'UAT Completion',                                  doc:'UAT Signoff Email',    loc:'Confluence',       rem:''},
-      {sn:'13',phase:'Deploy',          item:'Request for pipeline approval',    pre:'UAT Completion',                                  doc:'',                     loc:'',                 rem:''},
-      {sn:'14',phase:'Deploy',          item:'Deploy REACT Codes',               pre:"HDB Team Lead's GitLab pipeline Approval",        doc:'Email confirmation',   loc:'Confluence',       rem:''},
+      {sn:'13',phase:'Deploy',          item:'Request for pipeline approval',    pre:'Create Release Notes',                           doc:'Email confirmation',   loc:'Confluence',       rem:'Seek TL Approval in GitLab'},
+      {sn:'14',phase:'Deploy',          item:'Deploy JAVA Controller Codes',     pre:"HDB Team Lead's GitLab pipeline Approval",        doc:'Email confirmation',   loc:'Confluence',       rem:''},
       {sn:'15',phase:'Post Deployment', item:'Production Verification',          pre:'Deployment completed',                            doc:'Email notification to stakeholders', loc:'JIRA / Confluence', rem:'Verify logs (StackOps / DataPower Gateway / API Connect) · Verify UI (REACT UI if access granted) · Display only BN31, BN32, BN41, BE04'},
     ]
   },
@@ -727,7 +728,7 @@ function renderPreview() {
 
   let html = `
     <div class="cl-section">
-      <div class="sec-label"><span>General</span> Always included · Default for all deployments</div>
+      <div class="sec-label"><span>General</span> Always included · Default for all deployments<br><span style="font-size:0.72rem;font-weight:500;opacity:0.85">(REACT/HAPPY/JAVA BATCH → APIC → JAVA CONTROLLER → EJB/REST API → MQ → COBOL)</span></div>
       ${mkTable(GENERAL.rows)}
     </div>`;
 
@@ -853,6 +854,7 @@ const COLS = [
   [20, 'left'],   // J Completed By
   [16, 'center'], // K Date Completed
   [30, 'left'],   // L Notes
+  [30, 'left'],   // M Dependency
 ];
 const NC = COLS.length;
 const FILL_COLS = new Set([8,9,10,11,12]); // 1-indexed H-L
@@ -891,10 +893,10 @@ function applySheetSections(ws, sections, sheetLabel) {
   }));
 
   const HDRS = ['S/N','Phase','Item / Action','Pre-Requisite','Required Documents',
-                'Upload Location','Remarks','PIC','Status','Completed By','Date Completed','Notes'];
+                'Upload Location','Remarks','PIC','Status','Completed By','Date Completed','Notes','Dependency'];
 
   // ── Title row ──────────────────────────────────────────────
-  const titleRow = ws.addRow(['Deployment Checklist']);
+  const titleRow = ws.addRow(['NIMBUS Deployment Checklist']);
   titleRow.height = 24;
   ws.mergeCells(titleRow.number, 1, titleRow.number, NC);
   titleRow.getCell(1).style = {
@@ -968,7 +970,7 @@ function applySheetSections(ws, sections, sheetLabel) {
   // ── Sections ──────────────────────────────────────────────
   sections.forEach(sec => {
     // Section banner
-    const secRow = ws.addRow([sec.name.toUpperCase()]);
+    const secRow = ws.addRow([sec.name.toUpperCase() + (sec.sub ? '  ' + sec.sub : '')]);
     secRow.height = 20;
     ws.mergeCells(secRow.number, 1, secRow.number, NC);
     secRow.getCell(1).style = {
@@ -986,7 +988,7 @@ function applySheetSections(ws, sections, sheetLabel) {
     // Data rows
     sec.rows.forEach((r, idx) => {
       const bg = idx % 2 === 1 ? PALETTE.alt1 : PALETTE.alt2;
-      const vals = [r.sn, r.phase, r.item, r.pre, r.doc, r.loc, r.rem, '', '', '', '', ''];
+      const vals = [r.sn, r.phase, r.item, r.pre, r.doc, r.loc, r.rem, '', '', '', '', '', r.dep || 'Please confirm pre-requisite step, e.g. Step 8'];
       const dataRow = ws.addRow(vals);
       dataRow.height = 54;
 
@@ -1035,7 +1037,7 @@ function applySheetSections(ws, sections, sheetLabel) {
 
 async function exportToExcel() {
   const wb = new ExcelJS.Workbook();
-  wb.creator  = 'Checklist';
+  wb.creator  = 'NIMBUS Checklist';
   wb.created  = new Date();
   wb.modified = new Date();
 
@@ -1045,12 +1047,7 @@ async function exportToExcel() {
   const wsCombined = wb.addWorksheet('Deployment Checklist', { views:[{showGridLines:false}] });
   applySheetSections(wsCombined, sections, 'Deployment Checklist');
 
-  // Per-module tabs
-  sections.forEach(sec => {
-    const safe = sec.name.replace(/[\/\\?\*\[\]:']/g,'').substring(0,30);
-    const ws = wb.addWorksheet(safe, { views:[{showGridLines:false}] });
-    applySheetSections(ws, [sec], sec.name);
-  });
+
 
   // Write & download
   const buf = await wb.xlsx.writeBuffer();
