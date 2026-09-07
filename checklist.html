@@ -951,26 +951,6 @@ function applySheetSections(ws, sections, sheetLabel) {
 
   // ── Sections ──────────────────────────────────────────────
   sections.forEach(sec => {
-    // Release Note row — only for REACT and JAVA sections
-    if (sec.id === 'react' || sec.id === 'java') {
-      const rnRow = ws.addRow(['Release Note:', '', '']);
-      rnRow.height = 18;
-      ws.mergeCells(rnRow.number, 1, rnRow.number, 2);
-      ws.mergeCells(rnRow.number, 3, rnRow.number, NC);
-      rnRow.getCell(1).style = {
-        font:      ejFont(true, 9, PALETTE.navyFt),
-        fill:      ejFill(PALETTE.navy),
-        alignment: ejAlign('left', 'center', false),
-        border: { left:{style:'medium',color:{argb:PALETTE.thick}}, top:{style:'medium',color:{argb:PALETTE.thick}}, bottom:{style:'thin',color:{argb:PALETTE.thick}} }
-      };
-      rnRow.getCell(3).style = {
-        font:      ejFont(false, 9, PALETTE.text),
-        fill:      ejFill(PALETTE.fillBg),
-        alignment: ejAlign('left', 'center', false),
-        border: { right:{style:'medium',color:{argb:PALETTE.thick}}, top:{style:'medium',color:{argb:PALETTE.thick}}, bottom:{style:'thin',color:{argb:PALETTE.thick}} }
-      };
-    }
-
     // Section banner
     const secRow = ws.addRow([sec.name.toUpperCase() + (sec.sub ? '  ' + sec.sub : '')]);
     secRow.height = 20;
@@ -986,6 +966,26 @@ function applySheetSections(ws, sections, sheetLabel) {
         bottom: { style:'thin',   color:{argb:PALETTE.border}},
       }
     };
+
+    // Release Note row — only for REACT and JAVA, right after section banner
+    if (sec.id === 'react' || sec.id === 'java') {
+      const rnRow = ws.addRow(['Release Note:', '', '']);
+      rnRow.height = 18;
+      ws.mergeCells(rnRow.number, 1, rnRow.number, 2);
+      ws.mergeCells(rnRow.number, 3, rnRow.number, NC);
+      rnRow.getCell(1).style = {
+        font:      ejFont(true, 9, PALETTE.navyFt),
+        fill:      ejFill(PALETTE.navy),
+        alignment: ejAlign('left', 'center', false),
+        border: { left:{style:'medium',color:{argb:PALETTE.thick}}, top:{style:'thin',color:{argb:PALETTE.thick}}, bottom:{style:'thin',color:{argb:PALETTE.thick}} }
+      };
+      rnRow.getCell(3).style = {
+        font:      ejFont(false, 9, PALETTE.text),
+        fill:      ejFill(PALETTE.fillBg),
+        alignment: ejAlign('left', 'center', false),
+        border: { right:{style:'medium',color:{argb:PALETTE.thick}}, top:{style:'thin',color:{argb:PALETTE.thick}}, bottom:{style:'thin',color:{argb:PALETTE.thick}} }
+      };
+    }
 
     // Data rows
     sec.rows.forEach((r, idx) => {
