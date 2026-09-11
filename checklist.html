@@ -841,23 +841,23 @@ const PALETTE = {
 // Col config: [exceljs width, alignment]
 const COLS = [
   [6,  'left'],   // A S/N
-  [18, 'left'],   // B Phase
-  [34, 'left'],   // C Item / Action
-  [42, 'left'],   // D Pre-Requisite
-  [28, 'left'],   // E Required Documents
-  [22, 'left'],   // F Upload Location
-  [24, 'left'],   // G Approval Required / Approver
-  [38, 'left'],   // H Remarks
-  [20, 'left'],   // I Team Responsible
-  [20, 'left'],   // J PIC
-  [14, 'center'], // K Status
-  [20, 'left'],   // L Completed By
-  [16, 'center'], // M Date Completed
-  [30, 'left'],   // N Notes
-  [30, 'left'],   // O Dependency
+  [30, 'left'],   // B Dependency
+  [18, 'left'],   // C Phase
+  [34, 'left'],   // D Item / Action
+  [42, 'left'],   // E Pre-Requisite
+  [28, 'left'],   // F Required Documents
+  [22, 'left'],   // G Upload Location
+  [24, 'left'],   // H Approval Required / Approver
+  [38, 'left'],   // I Remarks
+  [20, 'left'],   // J Team Responsible
+  [20, 'left'],   // K PIC
+  [14, 'center'], // L Status
+  [20, 'left'],   // M Completed By
+  [16, 'center'], // N Date Completed
+  [30, 'left'],   // O Notes
 ];
 const NC = COLS.length;
-const FILL_COLS = new Set([10,11,12,13,14]); // 1-indexed J-N (PIC, Status, CompletedBy, Date, Notes)
+const FILL_COLS = new Set([11,12,13,14,15]); // 1-indexed K-O (PIC, Status, CompletedBy, Date, Notes)
 
 function ejFill(argb) {
   return { type:'pattern', pattern:'solid', fgColor:{ argb } };
@@ -892,8 +892,8 @@ function applySheetSections(ws, sections, sheetLabel) {
     key: String(i),
   }));
 
-  const HDRS = ['S/N','Phase','Item / Action','Pre-Requisite','Required Documents',
-                'Upload Location','Approval Required / Approver','Remarks','Team Responsible','PIC','Status','Completed By','Date Completed','Notes','Dependency'];
+  const HDRS = ['S/N','Dependency','Phase','Item / Action','Pre-Requisite','Required Documents',
+                'Upload Location','Approval Required / Approver','Remarks','Team Responsible','PIC','Status','Completed By','Date Completed','Notes'];
 
   // ── Title row ──────────────────────────────────────────────
   const titleRow = ws.addRow(['Deployment Checklist']);
@@ -990,7 +990,7 @@ function applySheetSections(ws, sections, sheetLabel) {
     // Data rows
     sec.rows.forEach((r, idx) => {
       const bg = idx % 2 === 1 ? PALETTE.alt1 : PALETTE.alt2;
-      const vals = [r.sn, r.phase, r.item, r.pre, r.doc, r.loc, r.apr || '', r.rem, r.team || '', '', '', '', '', '', r.dep || 'Please confirm pre-requisite step, e.g. Step 8'];
+      const vals = [r.sn, r.dep || 'Please confirm pre-requisite step, e.g. Step 8', r.phase, r.item, r.pre, r.doc, r.loc, r.apr || '', r.rem, r.team || '', '', '', '', '', ''];
       const dataRow = ws.addRow(vals);
       dataRow.height = 54;
 
